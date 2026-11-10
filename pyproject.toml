@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "excel-report-automation"
+version = "0.1.0"
+description = "Из выгрузки заказов (CSV/XLSX) собирает Excel-отчёт с формулами и графиками"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = ["openpyxl>=3.1"]
+
+[project.scripts]
+xlreport = "xlreport.cli:main"
+
+[tool.setuptools]
+packages = ["xlreport"]
