@@ -55,6 +55,22 @@ class DemoRoundTrip(unittest.TestCase):
         self.assertEqual(generate(50, 7).csv_text, generate(50, 7).csv_text)
         self.assertNotEqual(generate(50, 7).csv_text, generate(50, 8).csv_text)
 
+    def test_imported_text_and_title_are_stored_as_text(self):
+        out = self.tmp / "literal.xlsx"
+        row = dict(order="=1+1", date="2026-01-01", client="=1+1", manager="=1+1",
+                   category="=1+1", qty="1", price="10")
+        build_report(clean_rows([(2, row)]), out, title="=1+1")
+        with out.open("rb") as handle:
+            workbook = load_workbook(handle)
+            for sheet, position in (("Данные", "A2"), ("Данные", "D2"),
+                                    ("По менеджерам", "A2"), ("Топ клиентов", "B2"),
+                                    ("Сводка", "A1")):
+                cell = workbook[sheet][position]
+                self.assertEqual(cell.value, "=1+1")
+                self.assertEqual(cell.data_type, "s")
+            self.assertEqual(workbook["Данные"]["I2"].data_type, "f")
+            workbook.close()
+
     def test_report_structure(self):
         out = self.tmp / "r.xlsx"
         build_report(self.res, out)

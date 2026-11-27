@@ -63,6 +63,8 @@ def build_report(result: CleanResult, path, title: str = "Отчёт по зак
     for i, o in enumerate(orders, start=2):
         data.append([o.order, o.date, month_key(o.date), o.client, o.manager, o.category,
                      o.qty, o.price, f"=G{i}*H{i}"])
+        for column in (1, 4, 5, 6):
+            data.cell(row=i, column=column).data_type = "s"
         data.cell(row=i, column=2).number_format = "DD.MM.YYYY"
         data.cell(row=i, column=8).number_format = MONEY
         data.cell(row=i, column=9).number_format = MONEY
@@ -76,7 +78,7 @@ def build_report(result: CleanResult, path, title: str = "Отчёт по зак
     def breakdown(ws, name: str, col: str, keys: list[str], chart_title: str) -> None:
         _header(ws, 1, [name, "Выручка", "Заказов", "Доля"])
         for i, k in enumerate(keys, start=2):
-            ws.cell(row=i, column=1, value=k)
+            ws.cell(row=i, column=1, value=k).data_type = "s"
             ws.cell(row=i, column=2, value=f"=SUMIFS({rng('I')},{rng(col)},A{i})").number_format = MONEY
             ws.cell(row=i, column=3, value=f"=COUNTIFS({rng(col)},A{i})")
             ws.cell(row=i, column=4, value=f"=IF({total_rev}=0,0,B{i}/{total_rev})").number_format = "0.0%"
@@ -117,7 +119,7 @@ def build_report(result: CleanResult, path, title: str = "Отчёт по зак
     _header(top, 1, ["№", "Клиент", "Выручка", "Заказов", "Доля"])
     for i, k in enumerate(clients, start=2):
         top.cell(row=i, column=1, value=i - 1)
-        top.cell(row=i, column=2, value=k)
+        top.cell(row=i, column=2, value=k).data_type = "s"
         top.cell(row=i, column=3, value=f"=SUMIFS({rng('I')},{rng('D')},B{i})").number_format = MONEY
         top.cell(row=i, column=4, value=f"=COUNTIFS({rng('D')},B{i})")
         top.cell(row=i, column=5, value=f"=IF({total_rev}=0,0,C{i}/{total_rev})").number_format = "0.0%"
@@ -127,11 +129,14 @@ def build_report(result: CleanResult, path, title: str = "Отчёт по зак
     _header(issues, 1, ["Строка в файле", "Что сделано", "Причина", "Исходная строка"])
     for it in result.issues:
         issues.append([it.row, it.kind, it.reason, it.raw])
+        for column in (2, 3, 4):
+            issues.cell(row=issues.max_row, column=column).data_type = "s"
     _widths(issues, [14, 14, 60, 70])
     issues.freeze_panes = "A2"
 
     # --- Сводка ---
     summary["A1"] = title
+    summary["A1"].data_type = "s"
     summary["A1"].font = Font(bold=True, size=16)
     rows = [
         ("Выручка", f"={total_rev}", MONEY),
